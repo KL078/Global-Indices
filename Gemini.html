@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Indices: MSCI World, MSCI EM & SENSEX</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #0f3a61;
+            --secondary: #1e5c94;
+            --bg-light: #f4f7f9;
+            --text-dark: #2c3e50;
+            --text-muted: #596a7a;
+            --border: #e1e8ed;
+            --accent-red: #c53030;
+            --accent-green: #2f855a;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        #sidebar {
+            width: 250px;
+            background-color: #ffffff;
+            border-right: 1px solid var(--border);
+            position: fixed;
+            height: 100vh;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        #sidebar.collapsed { 
+            transform: translateX(-100%); 
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            background-color: var(--primary);
+            text-align: right;
+        }
+        
+        .close-btn {
+            background: none; 
+            border: none; 
+            color: white; 
+            font-size: 1.5rem; 
+            cursor: pointer;
+        }
+        
+        .sidebar-nav { 
+            list-style: none; 
+            padding: 0; 
+            margin: 0; 
+        }
+        
+        .sidebar-nav li a {
+            display: block; 
+            padding: 1rem 1.5rem; 
+            color: var(--text-dark); 
+            text-decoration: none; 
+            border-bottom: 1px solid var(--border); 
+            font-weight: 500;
+        }
+        
+        .sidebar-nav li a:hover { 
+            border-left: 4px solid var(--secondary); 
+            background: var(--bg-light); 
+        }
+
+        #main-content {
+            flex-grow: 1; 
+            margin-left: 250px; 
+            padding: 2.5rem 4rem; 
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 250px);
+            display: flex;
+            justify-content: center;
+        }
+        
+        #main-content.expanded { 
+            margin-left: 0; 
+            width: 100%;
+        }
+
+        .content-wrapper {
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        .toggle-btn {
+            background-color: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 0.5rem 1rem; 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+            border-radius: 4px; 
+            margin-bottom: 2rem;
+            display: inline-block;
+        }
+
+        h1 { color: var(--primary); border-bottom: 2px solid var(--secondary); padding-bottom: 0.5rem; margin-top: 0; }
+        h2 { color: var(--primary); margin-top: 0; font-size: 1.5rem; }
+        h3 { color: var(--secondary); font-size: 1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.2rem; margin-top: 2rem;}
+        h4 { margin: 0 0 0.5rem 0; color: var(--secondary); font-size: 1.05rem; }
+
+        .card { background: white; padding: 2rem; border-radius: 8px; margin-bottom: 2.5rem; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .card p:last-child { margin-bottom: 0; }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        .column { background: white; padding: 2rem; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+
+        .step { background: #f8fafc; border-left: 3px solid var(--secondary); padding: 1.2rem; margin-bottom: 1rem; border-radius: 0 4px 4px 0; }
+        .step p { margin: 0; font-size: 0.95rem; }
+
+        .chart-container-pie { position: relative; height: 380px; width: 100%; margin-top: 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: center; align-items: center; }
+        .chart-container { position: relative; height: 500px; width: 100%; margin-top: 2rem; background: #ffffff; padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border); }
+
+        .policy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin-top: 2rem; }
+        .policy-card { background: #f8fafc; padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border); }
+        .policy-card h4 { color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        
+        .limitations-section { margin-top: 3.5rem; }
+        .limitations-card { background: #fff5f5; padding: 1.5rem; border-radius: 8px; border: 1px solid #feb2b2; margin-bottom: 1.5rem; border-left: 4px solid var(--accent-red); }
+        .limitations-card h4 { color: var(--accent-red); margin-bottom: 0.8rem; }
+        .limitations-card p { color: #742a2a; margin: 0; font-size: 0.95rem; }
+
+        .conclusion { background: var(--primary); color: white; padding: 2.5rem; border-radius: 8px; margin-top: 3rem; text-align: center; }
+        .conclusion p { margin: 0; font-size: 1.1rem; font-weight: 300; }
+
+        @media (max-width: 1200px) {
+            #main-content { padding: 2rem; }
+        }
+
+        @media (max-width: 1024px) {
+            .grid-container { grid-template-columns: 1fr; }
+            #sidebar { transform: translateX(-100%); }
+            #main-content { margin-left: 0; width: 100%; padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <button class="close-btn" onclick="toggleSidebar()">&times;</button>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="#intro">Overview</a></li>
+            <li><a href="#comparison">Methodologies & Constituents</a></li>
+            <li><a href="#performance">Historical Performance</a></li>
+            <li><a href="#policy">Policy Implications</a></li>
+            <li><a href="#limitations">Key Limitations</a></li>
+        </ul>
+    </nav>
+
+    <main id="main-content">
+        <div class="content-wrapper">
+            <button class="toggle-btn" onclick="toggleSidebar()">&#9776;</button>
+
+            <section id="intro" class="card">
+                <h1>Global Equity Indices</h1>
+                <p>Global indices are statistical composites that track the performance of specific financial markets. Rather than blindly adding up every company in the world, the MSCI methodologies are designed to reflect the reality of what an investor can actually buy and sell. They do this by carefully filtering out shares that are locked up or restricted, ensuring the index represents the true, investable opportunity set.</p>
+            </section>
+
+            <div class="grid-container" id="comparison">
+                <div class="column">
+                    <h2>MSCI World Index</h2>
+                    
+                    <h3>How It's Built</h3>
+                    <div class="step">
+                        <h4>1. Casting the Net (Equity Universe)</h4>
+                        <p>The process starts by looking at all the listed companies across 23 developed markets. A company is only included if it is large enough, traded actively enough, and easy for foreign investors to buy.</p>
+                    </div>
+                    <div class="step">
+                        <h4>2. The Reality Check (Free-Float Adjustment)</h4>
+                        <p>MSCI adjusts the market value to count only the shares freely floating in the public market. They strictly remove shares hoarded by founders, governments, or other companies.</p>
+                    </div>
+                    <div class="step">
+                        <h4>3. Selecting the Leaders (Size Segmentation)</h4>
+                        <p>Companies are ranked from biggest to smallest. The index captures about 85% of the market's total available value. Large companies make up the top 70%, mid-sized companies make up 15%, and smaller companies are excluded.</p>
+                    </div>
+
+                    <h3>Top 10 Constituents (As of Jan 2026)</h3>
+                    <div class="chart-container-pie">
+                        <canvas id="worldConstituentsChart"></canvas>
+                    </div>
+
+                    <h3>Top 5 Country Weights (As of Jan 2026)</h3>
+                    <div class="chart-container-pie">
+                        <canvas id="worldCountriesChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <h2>MSCI Emerging Markets Index</h2>
+                    
+                    <h3>How It's Built</h3>
+                    <div class="step">
+                        <h4>1. Assessing the Landscape (Country & Equity Universe)</h4>
+                        <p>A country is classified as "emerging" based on its economic growth and how easily money can move across borders. Stocks that suffer from severe trading halts or extreme rules blocking foreign money are removed.</p>
+                    </div>
+                    <div class="step">
+                        <h4>2. The Reality Check (Adjusting for the State & Laws)</h4>
+                        <p>If a country has laws limiting how much of a company a foreigner can own, MSCI strictly shrinks that company's weight in the index to match what global investors are legally allowed to hold.</p>
+                    </div>
+                    <div class="step">
+                        <h4>3. Selecting the Leaders (Size Segmentation)</h4>
+                        <p>They rank the investable companies in each emerging country, aiming for that same 85% coverage. Because of this size-based approach, massive markets like China, India, and Taiwan naturally dominate the index.</p>
+                    </div>
+
+                    <h3>Top 10 Constituents (As of Jan 2026)</h3>
+                    <div class="chart-container-pie">
+                        <canvas id="emConstituentsChart"></canvas>
+                    </div>
+
+                    <h3>Top 5 Country Weights (As of Jan 2026)</h3>
+                    <div class="chart-container-pie">
+                        <canvas id="emCountriesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <section id="performance" class="card">
+                <h2>Performance Comparison: YoY Change</h2>
+                <div class="chart-container">
+                    <canvas id="yoyChart"></canvas>
+                </div>
+            </section>
+
+            <section id="policy" class="card">
+                <h2>Policy Implications of MSCI Indices</h2>
+                <p>The MSCI World Index and MSCI Emerging Markets (EM) Index play a crucial role in shaping global financial policies, investment strategies, and economic governance. Serving as benchmarks for trillions of dollars of institutional investments, capital flows increasingly respond to index classifications and weight changes.</p>
+                
+                <div class="policy-grid">
+                    <div class="policy-card">
+                        <h4>Capital Flows & Economic Stability</h4>
+                        <p>Countries included in the MSCI World Index generally benefit from stable and long-term foreign investment inflows. In contrast, emerging economies often experience more volatile capital movements, significantly influencing exchange rate stability, foreign reserve management, and monetary policy frameworks.</p>
+                    </div>
+                    
+                    <div class="policy-card">
+                        <h4>Pressure for Structural Reform</h4>
+                        <p>To secure inclusion or upgrades within MSCI indices, governments face intense pressure to implement financial reforms. This necessitates improving market accessibility, investor protection, capital mobility, and regulatory transparency, driving a worldwide convergence toward market-friendly economic policies and deeper financial integration.</p>
+                    </div>
+                    
+                    <div class="policy-card">
+                        <h4>Fiscal & Monetary Discipline</h4>
+                        <p>Heavy representation in these indices subjects countries to constant scrutiny from global investors. This scrutiny encourages governments to maintain macroeconomic stability, low inflation, and sustainable public debt. Sudden policy shifts or regulatory uncertainty can trigger immediate capital outflows, pushing policymakers toward cautious and predictable governance.</p>
+                    </div>
+                    
+                    <div class="policy-card">
+                        <h4>Systemic Risk & Contagion</h4>
+                        <p>Since portfolio managers replicate index weights globally, a shock in one major market can quickly transmit across borders, amplifying systemic risks. This deep interconnectedness forces international policymakers and central banks to coordinate macroprudential policies and global financial safety nets.</p>
+                    </div>
+                    
+                    <div class="policy-card" style="grid-column: 1 / -1;">
+                        <h4>The EM Development Dynamic</h4>
+                        <p>For developing economies, inclusion in the MSCI EM Index is a double-edged sword. It enhances global visibility, lowers the cost of capital, and supports economic development. However, it simultaneously exposes these countries to global financial cycles, rendering them highly vulnerable to external shocks and interest rate fluctuations in advanced economies. Consequently, policymakers must actively build resilient banking systems and sound fiscal buffers.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="limitations" class="limitations-section">
+                <h2>Limitations & Policy Challenges</h2>
+                
+                <div class="limitations-card">
+                    <h4>Capital Concentration & Structural Bias</h4>
+                    <p>A major limitation is the over-concentration of capital in a few large economies, leading to unequal global capital distribution. Smaller and poorer nations remain excluded, restricting their access to global finance. Furthermore, the methodology's strict emphasis on market capitalization and liquidity inherently disadvantages economies with bank-based financial systems or limited stock market depth, regardless of their actual real economic size.</p>
+                </div>
+                
+                <div class="limitations-card">
+                    <h4>Rebalancing Volatility & Loss of Autonomy</h4>
+                    <p>Index rebalancing events (upgrades, downgrades, or reweighting) trigger massive, mechanical portfolio adjustments by tracking funds. This results in sharp capital inflows or sudden outflows that can destabilize domestic financial markets, complicating monetary policy and exchange rate control. As a result, domestic policymakers often experience a loss of autonomy, with policy decisions increasingly driven by investor sentiment rather than domestic development priorities.</p>
+                </div>
+            </section>
+
+            <div class="conclusion">
+                <p><strong>Conclusion:</strong> The MSCI World and EM Indices possess profound global policy implications. While they promote efficiency, transparency, and financial integration, they concurrently introduce volatility, systemic risk, and unequal development outcomes. Policymakers must continually navigate the balance between embracing global financial integration and safeguarding domestic economic stability.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        
+        if (window.innerWidth <= 1024) {
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+        }
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 1024) {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+            } else {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Shared Pie Chart Options
+            const pieOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            usePointStyle: true,
+                            font: { family: "'Segoe UI', Roboto, sans-serif", size: 11 },
+                            boxWidth: 8
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' ' + context.label + ': ' + context.parsed + '%';
+                            }
+                        }
+                    }
+                },
+                cutout: '55%'
+            };
+
+            // Color Palettes
+            const colorsWorld10 = ['#0f3a61', '#174878', '#1e5c94', '#256aa6', '#2b7ab9', '#3789cc', '#4299e1', '#54a8e8', '#63b3ed', '#8dc6f2', '#e2e8f0'];
+            const colorsEM10 = ['#5c1f1f', '#742a2a', '#8a2c2c', '#9b2c2c', '#b02f2f', '#c53030', '#d83838', '#e53e3e', '#f05656', '#fc8181', '#e2e8f0'];
+
+            // 1. MSCI World Constituents (Top 10 + Others)
+            new Chart(document.getElementById('worldConstituentsChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Nvidia', 'Apple', 'Microsoft', 'Amazon.com', 'Alphabet A', 'Alphabet C', 'Meta', 'Broadcom', 'Tesla', 'JPMorgan', 'Others'],
+                    datasets: [{
+                        data: [5.48, 4.55, 3.59, 2.71, 2.32, 1.95, 1.84, 1.75, 1.44, 0.99, 73.38],
+                        backgroundColor: colorsWorld10,
+                        borderWidth: 1,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: pieOptions
+            });
+
+            // 2. MSCI World Countries
+            new Chart(document.getElementById('worldCountriesChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['United States', 'Japan', 'United Kingdom', 'Canada', 'France', 'Others'],
+                    datasets: [{
+                        data: [71.29, 5.68, 3.75, 3.47, 2.59, 13.22],
+                        backgroundColor: ['#0f3a61', '#1e5c94', '#2b7ab9', '#4299e1', '#63b3ed', '#e2e8f0'],
+                        borderWidth: 1,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: pieOptions
+            });
+
+            // 3. MSCI EM Constituents (Top 10 + Others)
+            new Chart(document.getElementById('emConstituentsChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['TSMC', 'Samsung', 'Tencent', 'Alibaba', 'SK Hynix', 'HDFC Bank', 'China Const. Bank', 'Reliance Ind.', 'Hon Hai', 'MediaTek', 'Others'],
+                    datasets: [{
+                        data: [12.49, 4.74, 4.47, 3.34, 3.10, 1.03, 0.88, 0.83, 0.79, 0.77, 67.56],
+                        backgroundColor: colorsEM10,
+                        borderWidth: 1,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: pieOptions
+            });
+
+            // 4. MSCI EM Countries
+            new Chart(document.getElementById('emCountriesChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['China', 'Taiwan', 'India', 'South Korea', 'Brazil', 'Others'],
+                    datasets: [{
+                        data: [26.76, 21.15, 15.47, 13.17, 4.63, 18.82],
+                        backgroundColor: ['#742a2a', '#9b2c2c', '#c53030', '#e53e3e', '#fc8181', '#e2e8f0'],
+                        borderWidth: 1,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: pieOptions
+            });
+
+            // YoY Line Chart
+            const ctx = document.getElementById('yoyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'],
+                    datasets: [
+                        {
+                            label: 'MSCI World YoY (%)',
+                            data: [7.99, 15.43, 14.37, -2.22, -42.89, 33.46, 16.85, -5.16, 13.29, 13.73, 4.94, -6.87, 14.74, 23.48, -8.35, 15.47, 13.63, 14.93, -8.96, 15.09, 19.70, 18.01],
+                            borderColor: '#1e5c94',
+                            backgroundColor: '#1e5c94',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            tension: 0.3,
+                            fill: false,
+                            spanGaps: true
+                        },
+                        {
+                            label: 'MSCI EM YoY (%)',
+                            data: [null, 44.53, 15.02, 20.77, -51.36, 76.31, 19.87, -8.91, 4.87, -12.39, 2.68, -22.80, 22.48, 37.98, -16.31, 1.18, 25.15, -9.13, -14.63, -5.40, 12.05, 39.76],
+                            borderColor: '#c53030',
+                            backgroundColor: '#c53030',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            tension: 0.3,
+                            fill: false,
+                            spanGaps: true
+                        },
+                        {
+                            label: 'SENSEX (USD) YoY (%)',
+                            data: [19.39, 50.35, 41.55, 40.55, -57.06, 83.83, 12.78, -13.18, 7.55, -12.36, 43.80, -22.13, 11.82, 38.13, -9.72, 11.39, 11.57, 22.56, -6.41, 18.52, 3.69, 0.21],
+                            borderColor: '#2f855a',
+                            backgroundColor: '#2f855a',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            tension: 0.3,
+                            fill: false,
+                            spanGaps: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + '%';
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    family: "'Segoe UI', Roboto, sans-serif",
+                                    size: 13
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Year-over-Year Change (%)',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                color: '#e1e8ed'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
