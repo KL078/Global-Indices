@@ -168,7 +168,7 @@
         </div>
         <ul class="sidebar-nav">
             <li><a href="#intro">Overview</a></li>
-            <li><a href="#comparison">Methodologies & Constituents</a></li>
+            <li><a href="#comparison">Classification & Methodology</a></li>
             <li><a href="#performance">Historical Performance</a></li>
             <li><a href="#policy">Policy Implications</a></li>
             <li><a href="#limitations">Key Limitations</a></li>
@@ -188,18 +188,18 @@
                 <div class="column">
                     <h2>MSCI World Index</h2>
                     
-                    <h3>How It's Built</h3>
+                    <h3>Classification & Construction Criteria</h3>
                     <div class="step">
-                        <h4>1. Casting the Net (Equity Universe)</h4>
-                        <p>The process starts by looking at all the listed companies across 23 developed markets. A company is only included if it is large enough, traded actively enough, and easy for foreign investors to buy.</p>
+                        <h4>1. Country Classification (Developed Markets)</h4>
+                        <p>Requires GNI per capita to be 25% above the World Bank high-income threshold for three consecutive years. Must demonstrate "Very High" market accessibility (openness to foreign ownership, unrestricted capital flows) and have at least 5 companies meeting standard size and liquidity requirements.</p>
                     </div>
                     <div class="step">
-                        <h4>2. The Reality Check (Free-Float Adjustment)</h4>
-                        <p>MSCI adjusts the market value to count only the shares freely floating in the public market. They strictly remove shares hoarded by founders, governments, or other companies.</p>
+                        <h4>2. Security Eligibility Screens</h4>
+                        <p>Companies must meet a Minimum Full Market Capitalization (USD 507 million as of Feb 2026). Securities require a Minimum Liquidity of 20% Annual Traded Value Ratio (ATVR) and 90% Frequency of Trading. Must also possess a Foreign Inclusion Factor (FIF) &ge; 0.15 and &ge; 15% foreign room.</p>
                     </div>
                     <div class="step">
-                        <h4>3. Selecting the Leaders (Size Segmentation)</h4>
-                        <p>Companies are ranked from biggest to smallest. The index captures about 85% of the market's total available value. Large companies make up the top 70%, mid-sized companies make up 15%, and smaller companies are excluded.</p>
+                        <h4>3. Size Segmentation</h4>
+                        <p>Eligible companies are ranked by free-float adjusted market cap to target 85% coverage of the investable equity universe. The top 70% forms the Large Cap segment, and the subsequent 15% forms the Mid Cap segment.</p>
                     </div>
 
                     <h3>Top 10 Constituents (As of Jan 2026)</h3>
@@ -216,18 +216,18 @@
                 <div class="column">
                     <h2>MSCI Emerging Markets Index</h2>
                     
-                    <h3>How It's Built</h3>
+                    <h3>Classification & Construction Criteria</h3>
                     <div class="step">
-                        <h4>1. Assessing the Landscape (Country & Equity Universe)</h4>
-                        <p>A country is classified as "emerging" based on its economic growth and how easily money can move across borders. Stocks that suffer from severe trading halts or extreme rules blocking foreign money are removed.</p>
+                        <h4>1. Country Classification (Emerging Markets)</h4>
+                        <p>No minimum economic development (GNI) requirement. Markets must demonstrate "Significant" openness to foreign ownership and capital flows, with a "Good and tested" operational framework. Requires at least 3 companies meeting standard size and liquidity requirements.</p>
                     </div>
                     <div class="step">
-                        <h4>2. The Reality Check (Adjusting for the State & Laws)</h4>
-                        <p>If a country has laws limiting how much of a company a foreigner can own, MSCI strictly shrinks that company's weight in the index to match what global investors are legally allowed to hold.</p>
+                        <h4>2. Security Eligibility Screens</h4>
+                        <p>Companies must meet a Minimum Full Market Capitalization (USD 507 million as of Feb 2026). Securities require a lower Minimum Liquidity of 15% Annual Traded Value Ratio (ATVR) and 80% Frequency of Trading. Must also possess a Foreign Inclusion Factor (FIF) &ge; 0.15 and &ge; 15% foreign room.</p>
                     </div>
                     <div class="step">
-                        <h4>3. Selecting the Leaders (Size Segmentation)</h4>
-                        <p>They rank the investable companies in each emerging country, aiming for that same 85% coverage. Because of this size-based approach, massive markets like China, India, and Taiwan naturally dominate the index.</p>
+                        <h4>3. Size Segmentation</h4>
+                        <p>Targets 85% coverage of each market's free-float adjusted market cap (Large Cap 70%, Mid Cap 15%). Applies an Adjustment Weight Factor (AWF) to accurately scale down constituent weights when strict foreign ownership limits (FOL) are present.</p>
                     </div>
 
                     <h3>Top 10 Constituents (As of Jan 2026)</h3>
@@ -358,7 +358,7 @@
             new Chart(document.getElementById('worldConstituentsChart').getContext('2d'), {
                 type: 'doughnut',
                 data: {
-                    labels: ['Nvidia', 'Apple', 'Microsoft', 'Amazon.com', 'Alphabet A', 'Alphabet C', 'Meta', 'Broadcom', 'Tesla', 'JPMorgan', 'Others'],
+                    labels: ['Nvidia', 'Apple', 'Microsoft', 'Amazon.com', 'Alphabet A', 'Alphabet C', 'Meta Platforms A', 'Broadcom', 'Tesla', 'JPMorgan Chase', 'Others'],
                     datasets: [{
                         data: [5.48, 4.55, 3.59, 2.71, 2.32, 1.95, 1.84, 1.75, 1.44, 0.99, 73.38],
                         backgroundColor: colorsWorld10,
@@ -388,7 +388,7 @@
             new Chart(document.getElementById('emConstituentsChart').getContext('2d'), {
                 type: 'doughnut',
                 data: {
-                    labels: ['TSMC', 'Samsung', 'Tencent', 'Alibaba', 'SK Hynix', 'HDFC Bank', 'China Const. Bank', 'Reliance Ind.', 'Hon Hai', 'MediaTek', 'Others'],
+                    labels: ['TSMC', 'Samsung Electronics Co', 'Tencent Holdings', 'Alibaba Group Holding', 'SK Hynix', 'HDFC Bank', 'China Construction Bank H', 'Reliance Industries', 'Hon Hai Precision Ind Co', 'MediaTek Inc.', 'Others'],
                     datasets: [{
                         data: [12.49, 4.74, 4.47, 3.34, 3.10, 1.03, 0.88, 0.83, 0.79, 0.77, 67.56],
                         backgroundColor: colorsEM10,
