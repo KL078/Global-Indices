@@ -149,6 +149,27 @@
         .conclusion { background: var(--primary); color: white; padding: 2.5rem; border-radius: 8px; margin-top: 3rem; text-align: center; }
         .conclusion p { margin: 0; font-size: 1.1rem; font-weight: 300; }
 
+        /* Names Section Styling - Updated for Horizontal View */
+        .contributors-section {
+            margin-top: 3rem;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+        }
+        .contributors-section span {
+            font-weight: 500;
+        }
+        .contributors-section span:not(:last-child)::after {
+            content: "|";
+            margin-left: 1.5rem;
+            color: var(--border);
+        }
+
         @media (max-width: 1200px) {
             #main-content { padding: 2rem; }
         }
@@ -157,6 +178,7 @@
             .grid-container { grid-template-columns: 1fr; }
             #sidebar { transform: translateX(-100%); }
             #main-content { margin-left: 0; width: 100%; padding: 1.5rem; }
+            .contributors-section { justify-content: center; }
         }
     </style>
 </head>
@@ -298,6 +320,13 @@
             <div class="conclusion">
                 <p><strong>Conclusion:</strong> The MSCI World and EM Indices possess profound global policy implications. While they promote efficiency, transparency, and financial integration, they concurrently introduce volatility, systemic risk, and unequal development outcomes. Policymakers must continually navigate the balance between embracing global financial integration and safeguarding domestic economic stability.</p>
             </div>
+
+            <div class="contributors-section">
+                <span>Kirtan Lapsiwala - 2509219</span>
+                <span>Tapasya Raje - 2509226</span>
+                <span>Prachi Dodi - 2509235</span>
+                <span>Siddhi Jain - 2509214</span>
+            </div>
         </div>
     </main>
 
@@ -326,7 +355,6 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Shared Pie Chart Options
             const pieOptions = {
                 responsive: true,
                 maintainAspectRatio: false,
@@ -350,11 +378,9 @@
                 cutout: '55%'
             };
 
-            // Color Palettes
             const colorsWorld10 = ['#0f3a61', '#174878', '#1e5c94', '#256aa6', '#2b7ab9', '#3789cc', '#4299e1', '#54a8e8', '#63b3ed', '#8dc6f2', '#e2e8f0'];
             const colorsEM10 = ['#5c1f1f', '#742a2a', '#8a2c2c', '#9b2c2c', '#b02f2f', '#c53030', '#d83838', '#e53e3e', '#f05656', '#fc8181', '#e2e8f0'];
 
-            // 1. MSCI World Constituents (Top 10 + Others)
             new Chart(document.getElementById('worldConstituentsChart').getContext('2d'), {
                 type: 'doughnut',
                 data: {
@@ -369,7 +395,6 @@
                 options: pieOptions
             });
 
-            // 2. MSCI World Countries
             new Chart(document.getElementById('worldCountriesChart').getContext('2d'), {
                 type: 'doughnut',
                 data: {
@@ -384,7 +409,6 @@
                 options: pieOptions
             });
 
-            // 3. MSCI EM Constituents (Top 10 + Others)
             new Chart(document.getElementById('emConstituentsChart').getContext('2d'), {
                 type: 'doughnut',
                 data: {
@@ -399,7 +423,6 @@
                 options: pieOptions
             });
 
-            // 4. MSCI EM Countries
             new Chart(document.getElementById('emCountriesChart').getContext('2d'), {
                 type: 'doughnut',
                 data: {
@@ -414,7 +437,6 @@
                 options: pieOptions
             });
 
-            // YoY Line Chart
             const ctx = document.getElementById('yoyChart').getContext('2d');
             new Chart(ctx, {
                 type: 'line',
@@ -462,10 +484,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
+                    interaction: { mode: 'index', intersect: false },
                     plugins: {
                         tooltip: {
                             callbacks: {
@@ -479,42 +498,19 @@
                             labels: {
                                 usePointStyle: true,
                                 padding: 20,
-                                font: {
-                                    family: "'Segoe UI', Roboto, sans-serif",
-                                    size: 13
-                                }
+                                font: { family: "'Segoe UI', Roboto, sans-serif", size: 13 }
                             }
                         }
                     },
                     scales: {
                         y: {
-                            title: {
-                                display: true,
-                                text: 'Year-over-Year Change (%)',
-                                font: {
-                                    weight: 'bold'
-                                }
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return value + '%';
-                                }
-                            },
-                            grid: {
-                                color: '#e1e8ed'
-                            }
+                            title: { display: true, text: 'Year-over-Year Change (%)', font: { weight: 'bold' } },
+                            ticks: { callback: function(value) { return value + '%'; } },
+                            grid: { color: '#e1e8ed' }
                         },
                         x: {
-                            title: {
-                                display: true,
-                                text: 'Year',
-                                font: {
-                                    weight: 'bold'
-                                }
-                            },
-                            grid: {
-                                display: false
-                            }
+                            title: { display: true, text: 'Year', font: { weight: 'bold' } },
+                            grid: { display: false }
                         }
                     }
                 }
